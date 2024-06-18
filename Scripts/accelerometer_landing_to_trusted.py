@@ -25,6 +25,8 @@ Join_node1718614477330 = Join.apply(frame1=CustomerTrusted_node1718614320397, fr
 SelectFields_node1718630890323 = SelectFields.apply(frame=Join_node1718614477330, paths=["z", "y", "x", "timestamp", "user"], transformation_ctx="SelectFields_node1718630890323")
 
 # Script generated for node Accelerometer Trusted
-AccelerometerTrusted_node1718614522741 = glueContext.write_dynamic_frame.from_options(frame=SelectFields_node1718630890323, connection_type="s3", format="json", connection_options={"path": "s3://stedi-bucket2024/accelerometer/trusted/", "partitionKeys": []}, transformation_ctx="AccelerometerTrusted_node1718614522741")
-
+AccelerometerTrusted_node1718614522741 = glueContext.getSink(path="s3://stedi-bucket2024/accelerometer/trusted/", connection_type="s3", updateBehavior="UPDATE_IN_DATABASE", partitionKeys=[], enableUpdateCatalog=True, transformation_ctx="AccelerometerTrusted_node1718614522741")
+AccelerometerTrusted_node1718614522741.setCatalogInfo(catalogDatabase="stedi",catalogTableName="accelerometer_trusted")
+AccelerometerTrusted_node1718614522741.setFormat("json")
+AccelerometerTrusted_node1718614522741.writeFrame(SelectFields_node1718630890323)
 job.commit()

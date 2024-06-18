@@ -122,14 +122,16 @@ The STEDI team wants to use the motion sensor data to train a machine learning m
     job.init(args['JOB_NAME'], args)
 
     # Script generated for node Customer Landing
-    CustomerLanding_node1685352066932 = glueContext.create_dynamic_frame.from_options(format_options={"multiline": False}, connection_type="s3", format="json", connection_options={"paths": ["s3://stedi-bucket2024/customer/landing/customer-1691348231425.json"], "recurse": True}, transformation_ctx="CustomerLanding_node1685352066932")
+    CustomerLanding_node1718594729182 = glueContext.create_dynamic_frame.from_options(format_options={"multiline": True}, connection_type="s3", format="json", connection_options={"paths": ["s3://stedi-bucket2024/customer/landing/"], "recurse": True}, transformation_ctx="CustomerLanding_node1718594729182")
 
     # Script generated for node PrivacyFilter
-    PrivacyFilter_node1718579583577 = Filter.apply(frame=CustomerLanding_node1685352066932, f=lambda row: (not(row["sharewithresearchasofdate"] == 0)), transformation_ctx="PrivacyFilter_node1718579583577")
+    PrivacyFilter_node1718594736325 = Filter.apply(frame=CustomerLanding_node1718594729182, f=lambda row: (not(row["shareWithResearchAsOfDate"] == 0)), transformation_ctx="PrivacyFilter_node1718594736325")
 
-    # Script generated for node Customer Trusted
-    CustomerTrusted_node1685352920969 = glueContext.write_dynamic_frame.from_options(frame=PrivacyFilter_node1718579583577, connection_type="s3", format="json", connection_options={"path": "s3://stedi-bucket2024/customer/trusted/", "partitionKeys": []}, transformation_ctx="CustomerTrusted_node1685352920969")
-
+    # Script generated for node Amazon S3
+    AmazonS3_node1718594851431 = glueContext.getSink(path="s3://stedi-bucket2024/customer/trusted/", connection_type="s3", updateBehavior="UPDATE_IN_DATABASE", partitionKeys=[], enableUpdateCatalog=True, transformation_ctx="AmazonS3_node1718594851431")
+    AmazonS3_node1718594851431.setCatalogInfo(catalogDatabase="stedi",catalogTableName="customer_trusted")
+    AmazonS3_node1718594851431.setFormat("json")
+    AmazonS3_node1718594851431.writeFrame(PrivacyFilter_node1718594736325)
     job.commit()
 ```
 
@@ -162,8 +164,10 @@ The STEDI team wants to use the motion sensor data to train a machine learning m
     SelectFields_node1718630890323 = SelectFields.apply(frame=Join_node1718614477330, paths=["z", "y", "x", "timestamp", "user"], transformation_ctx="SelectFields_node1718630890323")
 
     # Script generated for node Accelerometer Trusted
-    AccelerometerTrusted_node1718614522741 = glueContext.write_dynamic_frame.from_options(frame=SelectFields_node1718630890323, connection_type="s3", format="json", connection_options={"path": "s3://stedi-bucket2024/accelerometer/trusted/", "partitionKeys": []}, transformation_ctx="AccelerometerTrusted_node1718614522741")
-
+    AccelerometerTrusted_node1718614522741 = glueContext.getSink(path="s3://stedi-bucket2024/accelerometer/trusted/", connection_type="s3", updateBehavior="UPDATE_IN_DATABASE", partitionKeys=[], enableUpdateCatalog=True, transformation_ctx="AccelerometerTrusted_node1718614522741")
+    AccelerometerTrusted_node1718614522741.setCatalogInfo(catalogDatabase="stedi",catalogTableName="accelerometer_trusted")
+    AccelerometerTrusted_node1718614522741.setFormat("json")
+    AccelerometerTrusted_node1718614522741.writeFrame(SelectFields_node1718630890323)
     job.commit()
 ```
 
@@ -207,13 +211,18 @@ The STEDI team wants to use the motion sensor data to train a machine learning m
     SelectFields_node1718612994805 = SelectFields.apply(frame=SQLQuery_node1718641365439, paths=["serialnumber", "sensorreadingtime", "distancefromobject", "sensorReadingTime", "serialNumber", "distanceFromObject"], transformation_ctx="SelectFields_node1718612994805")
 
     # Script generated for node Step Trainer Trusted
-    StepTrainerTrusted_node1718610839029 = glueContext.write_dynamic_frame.from_options(frame=SelectFields_node1718612994805, connection_type="s3", format="json", connection_options={"path": "s3://stedi-bucket2024/step_trainer/trusted/", "partitionKeys": []}, transformation_ctx="StepTrainerTrusted_node1718610839029")
-
+    StepTrainerTrusted_node1718610839029 = glueContext.getSink(path="s3://stedi-bucket2024/step_trainer/trusted/", connection_type="s3", updateBehavior="UPDATE_IN_DATABASE", partitionKeys=[], enableUpdateCatalog=True, transformation_ctx="StepTrainerTrusted_node1718610839029")
+    StepTrainerTrusted_node1718610839029.setCatalogInfo(catalogDatabase="stedi",catalogTableName="step_trainer_trusted")
+    StepTrainerTrusted_node1718610839029.setFormat("json")
+    StepTrainerTrusted_node1718610839029.writeFrame(SelectFields_node1718612994805)
     job.commit()
 ```
 
 #### `Count of customer_trusted: 482 rows`
 ![Count of customer_trusted](./Images/customer_trusted.png)
+
+#### `Customer_trusted with sharewithresearchasofdate IS NULL`
+![Customer_trusted with sharewithresearchasofdate IS NULL](./Images/customer_trusted_with_null.png)
 
 #### `Count of accelerometer_trusted: 40981 rows`
 ![Count of accelerometer_trusted](./Images/accelerometer_trusted.png)
